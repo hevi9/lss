@@ -19,7 +19,7 @@ setup(
     use_scm_version=True,
     entry_points={
         "console_scripts": [
-            "lss=lss:main",
+            "lss=lss.cli:main",
         ]
     },
     install_requires=[

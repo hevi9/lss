@@ -1,6 +1,8 @@
-# development helpers for lndirs
+# development helpers for lss
 
 NAME = "lss"
+
+PY = python3.5
 
 .PHONY: dist
 
@@ -9,12 +11,14 @@ help:
 	@echo "  dev         - install as development mode (symlinks)"
 	@echo "  check       - check project"
 	@echo "  clean       - clean generated build files"
+	@echo "  dist        - create distribution wheel into dist/"
+	@echo "  distschek   - check wheel"
 
 dev: clean
 	sudo apt-get -y install python3-pip
-	pip3 install --user --upgrade pip
-	pip3 install --user --upgrade flake8 pytest tox wheel
-	pip3 install --user --process-dependency-links -e .
+	$(PY) -m pip install --user --upgrade pip
+	$(PY) -m pip install --user --upgrade flake8 pytest tox wheel
+	$(PY) -m pip install --user --process-dependency-links -e .
 
 check:
 	flake8 lss test setup.py
