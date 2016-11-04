@@ -18,7 +18,6 @@ import sys
 import time
 from datetime import datetime
 from fnmatch import fnmatch
-from pprint import pprint
 from subprocess import check_output
 import math
 import pwd
@@ -300,7 +299,7 @@ class Listing:
 class Item:
     """ Listing show item """
 
-    COLUMNS = ("name", "size", "mtime") # ?
+    COLUMNS = ("name", "size", "mtime")  # ?
 
     complete = True
     count = 1
@@ -389,12 +388,10 @@ class Link(Item):
     def is_symlink(self):
         return True
 
-
     def linked_path(self):
         if not self._linked_path:
             self._linked_path = os.readlink(self.file.path)
         return self._linked_path
-
 
     def linked_file(self):
         if not self._linked_file:
@@ -462,7 +459,7 @@ def filter_nobak(name):
 
 
 class Traverse:
-    def __init__(self, *, filters=[filter_nodot], follow=False, maxdepth=1,
+    def __init__(self, *, filters=(filter_nodot,), follow=False, maxdepth=1,
                  crossmount=False, timeout=0.5):
         self.filters = filters  # --all, --almost-all, --ignore-backups --hide
         self.follow = follow  # -L --dereference
@@ -539,18 +536,20 @@ class Traverse:
             except PermissionError as ex:
                 log.error("%s", str(ex))
 
-class TBD:
 
+class TBD:
     def __getattr__(self, item):
         def stub(*args, **kwds):
             pass
+
         return stub
+
 
 TBD = TBD()
 
 ARGS = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    allow_abbrev=True, # because enabling -atB style
+    allow_abbrev=True,  # because enabling -atB style
     description="ls command suppliment.")
 
 ARGS.add_argument("paths", metavar="path", nargs="*", default=["."],
@@ -564,7 +563,8 @@ ARGS.add_argument("--debug", action="store_true",
 GRP = ARGS.add_argument_group("Fields")
 GRP.add_argument("--inode", "-i", action="store_true",
                  help="print the index number of each file")
-# TODO -c                         with -lt: sort by, and show, ctime (time of last
+# TODO -c                         with -lt: sort by, and show, ctime (time of
+# last
 #                               modification of file status information);
 #                               with -l: show ctime and sort by name;
 #                               otherwise: sort by ctime, newest first
@@ -577,15 +577,16 @@ GRP.add_argument("--inode", "-i", action="store_true",
 GRP = ARGS.add_argument_group("Filters")
 GRP.add_argument("--all", "-a", action="store_true",
                  help="do not ignore entries starting with '.'")
-TBD.add_argument("-A","--almost-all", action="store_true",
+TBD.add_argument("-A", "--almost-all", action="store_true",
                  help="do not list implied . and ..")
 # TODO -A
 GRP.add_argument("-B", "--ignore-backups", action="store_true",
                  help="do not list implied entries ending with '~'")
-# TODO --hide=PATTERN         do not list implied entries matching shell PATTERN
+# TODO --hide=PATTERN         do not list implied entries matching shell
+# PATTERN
 # (overridden by -a or -A)
-# TODO -I, --ignore=PATTERN       do not list implied entries matching shell PATTERN
-
+# TODO -I, --ignore=PATTERN       do not list implied entries matching shell
+# PATTERN
 
 
 GRP = ARGS.add_argument_group("Listing")
@@ -613,14 +614,14 @@ TBD.add_argument("-X", "--sort-ext", action="store_true",
 # TODO --quoting-style=WORD   use quoting style WORD for entry names:
 #                               literal, locale, shell, shell-always,
 #                               shell-escape, shell-escape-always, c, escape
-# TODO -s, --size                 print the allocated size of each file, in blocks
-# TODO --sort=WORD            sort by WORD instead of name: none (-U), size (-S),
+# TODO -s, --size              print the allocated size of each file, in blocks
+# TODO --sort=WORD          sort by WORD instead of name: none (-U), size (-S),
 #                               time (-t), version (-v), extension (-X)
 # TODO --time=WORD            with -l, show time as WORD instead of default
-#                               modification time: atime or access or use (-u);
+#                             modification time: atime or access or use (-u);
 #                               ctime or status (-c); also use specified time
 #                               as sort key if --sort=time (newest first)
-# TODO -U                         do not sort; list entries in directory order
+# TODO -U                       do not sort; list entries in directory order
 
 GRP = ARGS.add_argument_group("Traverse")
 GRP.add_argument("--timeout", "-T", default=0.5, metavar="SECS", type=float,
@@ -632,6 +633,7 @@ GRP.add_argument("--dereference-command-line", "-H", action="store_true",
 GRP.add_argument("--cross-mount", action="store_true",
                  help="cross filesystem mount points")
 
+
 # Ignored ls options:
 # -D, --dired generate output designed for Emacs' dired mode
 # --author               with -l, print the author of each file
@@ -641,7 +643,7 @@ GRP.add_argument("--cross-mount", action="store_true",
 #                               1,048,576 bytes; see SIZE format below
 # -C                         list entries by columns
 # --color[=WHEN]         colorize the output; WHEN can be 'always' (default
-#                               if omitted), 'auto', or 'never'; more info below
+#                             if omitted), 'auto', or 'never'; more info below
 # -f                         do not sort, enable -aU, disable -ls --color
 # -F, --classify             append indicator (one of */=>@|) to entries
 # --file-type            likewise, except do not append '*'
@@ -670,13 +672,13 @@ GRP.add_argument("--cross-mount", action="store_true",
 #                             append / indicator to directories
 # -q, --hide-control-chars   print ? instead of nongraphic characters
 #      --show-control-chars   show nongraphic characters as-is (the default,
-#                               unless program is 'ls' and output is a terminal)
+#                           unless program is 'ls' and output is a terminal)
 # -R, --recursive            list subdirectories recursively
 # --time-style=STYLE     with -l, show times using style STYLE:
 #                                full-iso, long-iso, iso, locale, or +FORMAT;
-#                                FORMAT is interpreted like in 'date'; if FORMAT
-#                                is FORMAT1<newline>FORMAT2, then FORMAT1 applies
-#                                to non-recent files and FORMAT2 to recent files;
+#                              FORMAT is interpreted like in 'date'; if FORMAT
+#                              is FORMAT1<newline>FORMAT2, then FORMAT1 applies
+#                              to non-recent files and FORMAT2 to recent files;
 #                                if STYLE is prefixed with 'posix-', STYLE
 #                                takes effect only outside the POSIX locale
 # -T, --tabsize=COLS         assume tab stops at each COLS instead of 8
@@ -718,6 +720,7 @@ def main(args=sys.argv[1:]):
 
     listing.list()
 
+
 # TODO Exit status:
 #  0  if OK,
 #  1  if minor problems (e.g., cannot access subdirectory),
@@ -734,23 +737,3 @@ EXIT_MAJOR = 2
 
 if __name__ == "__main__":
     main()
-
-
-def test_traverse():
-    traverse = Traverse()
-    for item in [item for item in traverse(".")]:
-        D(item)
-        pass
-
-
-def test_timeout():
-    timeout = Timeout(0.1)
-    while not timeout:
-        D(timeout)
-        time.sleep(0.01)
-
-
-def test_ls_colors():
-    logging.basicConfig(level=logging.DEBUG)
-    lsc = LsColors(get_ls_colors_text())
-    pprint(lsc.data)

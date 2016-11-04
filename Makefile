@@ -1,5 +1,7 @@
 # development helpers for lndirs
 
+NAME = "lss"
+
 .PHONY: dist
 
 help:
@@ -15,7 +17,7 @@ dev: clean
 	pip3 install --user --process-dependency-links -e .
 
 check:
-	flake8 .
+	flake8 lss test setup.py
 	tox
 
 clean:
@@ -31,12 +33,12 @@ clean:
 	-name "*.cache" -o \
 	-name ".tox")
 
-dist:
+dist: clean
 	rm -rfv dist
 	python3.5 setup.py bdist_wheel
-	unzip -l dist/lndirs-*-py3-none-any.whl
+	unzip -l dist/$(NAME)-*-py3-none-any.whl
 
 checkdist: dist
-	tox --installpkg dist/lndirs-*-py3-none-any.whl
+	tox --installpkg dist/$(NAME)-*-py3-none-any.whl
 
 # Copyright (C) 2015 Petri Heinilä, License LGPL 2.1

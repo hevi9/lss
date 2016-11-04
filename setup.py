@@ -21,5 +21,10 @@ setup(
         "console_scripts": [
             "lss=lss:main",
         ]
-    }
+    },
+    install_requires=[
+        "humanize",
+        "colorama",
+        "python-dateutil"
+    ]
 )
