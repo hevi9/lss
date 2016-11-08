@@ -24,3 +24,11 @@ _markcolormap = {
 
 def get_color(mark):
     return _markcolormap[mark]
+
+# @marker
+# def testing1(file):
+#     return "T", MARK_MAJOR
+#
+# @marker
+# def testing2(file):
+#     return "o", MARK_OK

@@ -27,6 +27,7 @@ from dateutil.relativedelta import relativedelta
 
 from .lscolor import indicator_glob, ls_color, filetypemap
 from .marker import get_markers, get_color
+from .util import is_iterable
 
 from . import marker_git
 
@@ -67,6 +68,7 @@ def fmt_name(item):
         if pred(item.stat.st_mode):
             break
     return [item.name, ls_color(colorcode)]
+
 
 def fmt_time(item):
     """ Represent timestamp oldness in max 6 characters. """
@@ -149,8 +151,11 @@ def fmt_symlink(item):
     else:
         return None, None
 
+
 def fmt_markers(item):
-    return "".join(item.markers.keys()), Style.NORMAL
+    return tuple(
+        (k, get_color(item.markers[k])) for k in sorted(item.markers.keys()))
+
 
 class Column:
     def __init__(self, func, *, align="R", fill=" ", prefix=None):
@@ -159,6 +164,17 @@ class Column:
         self.fill = fill
         self.prefix = prefix
         self.maxwidth = 0
+
+
+class View:
+    def __init__(self):
+        self.width = 0  # sum of len(value)
+        self.viewseq = []  # value, color
+
+    def append(self, value, color):
+        if value is not None:
+            self.width += len(value)
+            self.viewseq.append((value, color))
 
 
 class Listing:
@@ -201,30 +217,34 @@ class Listing:
         for item in items:
             row = []  # (value, color, width)
             for column in self.columns:
-                value, color = column.func(item)
-                if value is not None:
-                    width = len(value)
-                    row.append((value, color, width))
-                    if width > column.maxwidth:
-                        column.maxwidth = width
+                specs = column.func(item)
+                if specs and not is_iterable(specs[0]):
+                    specs = [specs]
+                view = View()
+                for spec in specs:
+                    view.append(*spec)
+                row.append(view)
+                if view.width > column.maxwidth:
+                    column.maxwidth = view.width
             rows.append(row)
 
         # write rows
         for row in rows:
-            for i, field in enumerate(row):
-                if columns[i].prefix:
+            for i, view in enumerate(row):
+
+                if view.width and columns[i].prefix:
                     w(columns[i].prefix)
+
                 if columns[i].align == "R":  # align rigth
-                    w(" " * (
-                        columns[i].maxwidth - field[2]))  # maxwidth - width
-                if self.hascolor:
-                    w(field[1])  # color
-                w(field[0])  # value
-                if self.hascolor:
-                    w(Style.RESET_ALL)
+                    w(" " * (columns[i].maxwidth - view.width))
+                for field in view.viewseq:
+                    if self.hascolor:
+                        w(field[1])  # color
+                    w(field[0])  # value
+                    if self.hascolor:
+                        w(Style.RESET_ALL)
                 if columns[i].align == "L":  # align left
-                    w(" " * (
-                        columns[i].maxwidth - field[2]))  # maxwidth - width
+                    w(" " * (columns[i].maxwidth - view.width))
                 w(columns[i].fill)  # fill to next
             w("\n")
 
