@@ -230,11 +230,10 @@ class Listing:
 
         # write rows
         for row in rows:
+            last_fill = ""
             for i, view in enumerate(row):
-
                 if view.width and columns[i].prefix:
                     w(columns[i].prefix)
-
                 if columns[i].align == "R":  # align rigth
                     w(" " * (columns[i].maxwidth - view.width))
                 for field in view.viewseq:
@@ -245,7 +244,9 @@ class Listing:
                         w(Style.RESET_ALL)
                 if columns[i].align == "L":  # align left
                     w(" " * (columns[i].maxwidth - view.width))
-                w(columns[i].fill)  # fill to next
+                if columns[i].maxwidth or not last_fill:
+                    w(columns[i].fill)  # fill to next
+                    last_fill = columns[i].fill
             w("\n")
 
 

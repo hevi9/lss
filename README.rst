@@ -9,6 +9,9 @@ Features to complement ls
 * File count in directory tree.
 * Timeout in directory tree traversing.
 * User and group with colors.
+* Directory short markers. Currently for git: "G" if directory has git
+  repository, with colors: green - ok, purple - modified files and yellow -
+  untracked files
 
 Requirements
 ------------
