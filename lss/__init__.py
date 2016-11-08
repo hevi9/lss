@@ -20,6 +20,7 @@ from fnmatch import fnmatch
 import math
 import pwd
 import grp
+import pprint
 
 from humanize import naturalsize
 from colorama import Fore, Style
@@ -171,6 +172,9 @@ class View:
         self.width = 0  # sum of len(value)
         self.viewseq = []  # value, color
 
+    def __repr__(self):
+        return "".join(i[0] for i in self.viewseq)
+
     def append(self, value, color):
         if value is not None:
             self.width += len(value)
@@ -239,11 +243,13 @@ class Listing:
                 for field in view.viewseq:
                     if self.hascolor:
                         w(field[1])  # color
+                        D("value=%r color=%r", field[0], field[1])
                     w(field[0])  # value
                     if self.hascolor:
                         w(Style.RESET_ALL)
                 if columns[i].align == "L":  # align left
                     w(" " * (columns[i].maxwidth - view.width))
+
                 if columns[i].maxwidth or not last_fill:
                     w(columns[i].fill)  # fill to next
                     last_fill = columns[i].fill
@@ -261,11 +267,12 @@ class Item:
         self.markers = {}
 
     def __repr__(self):
-        return "%s(%r, complete=%s, size=%d)" % (
+        return "%s(%r, complete=%s, size=%d, mtime=%r)" % (
             self.__class__.__name__,
             self.path,
             self.complete,
-            self.size
+            self.size,
+            self.mtime
         )
 
     @property
@@ -287,6 +294,15 @@ class Item:
     @property
     def mtime(self):
         return self.file.stat.st_mtime
+
+    @property
+    def atime(self):
+        return self.file.stat.st_atime
+
+    @property
+    def ctime(self):
+        return self.file.stat.st_ctime
+
 
     @property
     def mode(self):
@@ -384,6 +400,15 @@ class File:
     @property
     def mtime(self):
         return self.stat.st_mtime
+
+    @property
+    def atime(self):
+        return self.stat.st_atime
+
+    @property
+    def ctime(self):
+        return self.stat.st_ctime
+
 
     def is_dir(self):
         return stat.S_ISDIR(self.stat.st_mode)
