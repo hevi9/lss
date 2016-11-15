@@ -8,7 +8,6 @@ lss - LS Supplement
 # TODO: permission colors
 # TODO: access errors
 # TODO: summary
-# TODO: dirty git support
 
 import logging
 import os
@@ -21,6 +20,7 @@ import math
 import pwd
 import grp
 import pprint
+import pkg_resources
 
 from humanize import naturalsize
 from colorama import Fore, Style
@@ -32,8 +32,18 @@ from .util import is_iterable
 
 from . import marker_git
 
+NAME = "lss"
+
+try:
+    __version__ = pkg_resources.get_distribution(NAME).version
+except pkg_resources.DistributionNotFound:
+    __version__ = "0.0.0"
+
+
 log = logging.getLogger(__name__)
 D = log.debug
+
+
 
 
 class Timeout:
@@ -70,6 +80,8 @@ def fmt_name(item):
             break
     return [item.name, ls_color(colorcode)]
 
+# TODO ? new colorscale: seconds, minutes, hours, days, weeks, months, years
+# TODO % time alternative iso-datetime
 
 def fmt_time(item):
     """ Represent timestamp oldness in max 6 characters. """
@@ -221,7 +233,7 @@ class Listing:
         for item in items:
             row = []  # (value, color, width)
             for column in self.columns:
-                specs = column.func(item)
+                specs = column.func(item) # call format function
                 if specs and not is_iterable(specs[0]):
                     specs = [specs]
                 view = View()

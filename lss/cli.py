@@ -1,7 +1,8 @@
 import argparse
-import sys
 import logging
+import sys
 
+from . import __version__
 from . import filter_all, filter_nobak, filter_nodot, Traverse, Listing
 
 log = logging.getLogger(__name__)
@@ -25,14 +26,16 @@ ARGS = argparse.ArgumentParser(
 
 ARGS.add_argument("paths", metavar="path", nargs="*", default=["."],
                   help="paths to list, directories or files")
-
+ARGS.add_argument("--version",
+                  action="version",
+                  version="%(prog)s " + __version__,
+                  )
 ARGS.add_argument("--debug", action="store_true",
                   help="set development and debug mode on")
 
-# TODO --version  output version information and exit
 
 GRP = ARGS.add_argument_group("Fields")
-GRP.add_argument("--inode", "-i", action="store_true",
+GRP.add_argument("-i", "--inode", action="store_true",
                  help="print the index number of each file")
 # TODO -c                         with -lt: sort by, and show, ctime (time of
 # last
@@ -46,32 +49,28 @@ GRP.add_argument("--inode", "-i", action="store_true",
 #                               otherwise: sort by access time, newest first
 
 GRP = ARGS.add_argument_group("Filters")
-GRP.add_argument("--all", "-a", action="store_true",
+GRP.add_argument("-a", "--all", action="store_true",
                  help="do not ignore entries starting with '.'")
-TBD.add_argument("-A", "--almost-all", action="store_true",
-                 help="do not list implied . and ..")
-# TODO -A
 GRP.add_argument("-B", "--ignore-backups", action="store_true",
                  help="do not list implied entries ending with '~'")
-# TODO --hide=PATTERN         do not list implied entries matching shell
-# PATTERN
-# (overridden by -a or -A)
-# TODO -I, --ignore=PATTERN       do not list implied entries matching shell
-# PATTERN
+GRP.add_argument("-I", "--ignore", "--hide", metavar="PATTERN",
+                 help="do not list implied entries matching shell PATTERN")
+
+# TODO --hide=PATTERN -I, --ignore=PATTERN       do not list implied entries matching shell
 
 
 GRP = ARGS.add_argument_group("Listing")
-GRP.add_argument("--group-directories-first", "-g", action="store_true",
+GRP.add_argument("-g", "--group-directories-first", action="store_true",
                  help="group directories before files TBD")
-GRP.add_argument("--dereference", "-L", action="store_true",
+GRP.add_argument("-L", "--dereference", action="store_true",
                  help="""when showing file information for a symbolic
       link, show information for the file the link
       references rather than for the link itself TBD""")
 # TODO: -L symlink dereference
-GRP.add_argument("--directory", "-d", action="store_true",
+GRP.add_argument("-d", "--directory", action="store_true",
                  help="list directories themselves, not their contents TBD")
 # TODO: -d flag
-GRP.add_argument("--reverse", "-r", action="store_true",
+GRP.add_argument("-r", "--reverse", action="store_true",
                  help="reverse order while sorting")
 GRP.add_argument("-t", "--sort-time", action="store_true",
                  help="sort by modification time, newest first")
@@ -95,15 +94,16 @@ TBD.add_argument("-X", "--sort-ext", action="store_true",
 # TODO -U                       do not sort; list entries in directory order
 
 GRP = ARGS.add_argument_group("Traverse")
-GRP.add_argument("--timeout", "-T", default=0.5, metavar="SECS", type=float,
+GRP.add_argument("-T", "--timeout", default=0.5, metavar="SECS", type=float,
                  help="""timeout to stop traversing on large trees.
                  To scan all files give a 'big' timeout eg. -T 99""")
-GRP.add_argument("--dereference-command-line", "-H", action="store_true",
+GRP.add_argument("-H", "--dereference-command-line", action="store_true",
                  help="follow symbolic links listed on the command line TBD")
 # TODO: -H dereference command line
 GRP.add_argument("--cross-mount", action="store_true",
                  help="cross filesystem mount points")
 
+# TODO show disk usage
 
 # Ignored ls options:
 # -D, --dired generate output designed for Emacs' dired mode
@@ -190,6 +190,7 @@ def main(args=sys.argv[1:]):
             listing.add(item)
 
     listing.list()
+    return EXIT_OK
 
 
 # TODO Exit status:
