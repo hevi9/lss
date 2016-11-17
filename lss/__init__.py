@@ -103,7 +103,20 @@ def fmt_time(item):
 
 
 def fmt_count(item):
-    return "%d" % item.count, Style.NORMAL
+    color = Style.NORMAL
+    if item.count:
+        value = "%d" % item.count
+        if item.count > 100:
+            color = Fore.BLUE
+        if item.count > 1000:
+            color = Fore.GREEN
+        if item.count > 10000:
+            color = Fore.YELLOW
+        if item.count > 100000:
+            color = Fore.RED
+    else:
+        value = ""
+    return value, color
 
 
 def fmt_size(item):
@@ -272,7 +285,7 @@ class Item:
     """ Listing show item """
 
     complete = True
-    count = 1
+    count = 0
 
     def __init__(self, file):
         self.file = file
